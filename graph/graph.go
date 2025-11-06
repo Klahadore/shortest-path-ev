@@ -2,7 +2,6 @@ package graph
 
 import (
 	"fmt"
-	"sort"
 )
 
 type Edge struct {
@@ -36,12 +35,12 @@ func (g *Graph) AddEdge(from, to, weight int) {
 	g.adjList[from] = append(g.adjList[from], Edge{To: to, Weight: weight})
 }
 
-func (g *Graph) GetVertices() []int {
-	vertices := make([]int, 0, len(g.adjList))
+func (g *Graph) GetVertices() *Set {
+	vertices := NewSet()
 	for vertex := range g.adjList {
-		vertices = append(vertices, vertex)
+		vertices.Add(vertex)
 	}
-	sort.Ints(vertices)
+
 	return vertices
 }
 

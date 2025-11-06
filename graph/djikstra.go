@@ -1,57 +1,76 @@
 package graph
 
-// import (
-// 	"fmt"
-// 	"slices"
-// )
+const maxInt = int(^uint(0) >> 1)
 
-// const maxInt = int(^uint(0) >> 1)
+func ShortestPath(source int, g *Graph) (map[int]int, map[int]int) {
+	// At first it contains all the vertices, later we will remove the source because this is not necessary
+	unvisited := g.GetVertices()
+	prev := make(map[int]int)
+	dist := make(map[int]int)
 
-// // Source - https://stackoverflow.com/questions/62369223/the-equivalent-of-indexof
-// // Posted by thwd
-// // Retrieved 11/4/2025, License - CC-BY-SA 4.0
+	// Initialize the map with all nodes exceptD the source to have a distance of inf because
+	// they are initially unexplored.
+	for node := range unvisited.elements {
+		dist[node] = maxInt
+		prev[node] = -1
+	}
+	dist[source] = 0
 
-// // IndexOf returns the first index of needle in haystack
-// // or -1 if needle is not in haystack.
-// func indexOf(haystack []int, needle int) int {
-// 	for i, v := range haystack {
-// 		if v == needle {
-// 			return i
-// 		}
-// 	}
-// 	return -1
-// }
+	for unvisited.Size() != 0 {
+		// Just gets a random item from the set
+		var currentNode int
+		for currentNode, _ = range unvisited.elements {
+			break
+		}
+		minDistLength := dist[currentNode]
+		for node := range unvisited.elements {
+			// If we haven't visited it yet, then
+			if dist[node] < minDistLength {
+				currentNode = node
+				minDistLength = dist[node]
+			}
+		}
 
-// func ShortestPath(source int, g *Graph) {
-// 	// At first it contains all the vertices, later we will remove the source because this is not necessary
-// 	unvisited := g.GetVertices()
-// 	shortestPathLength := make(map[int]int)
+		if minDistLength == maxInt {
+			break // all remaining nodes are unreachable
+		}
 
-// 	// This just initializes the map.
-// 	for node := range unvisited {
-// 		if node == source {
-// 			shortestPathLength[node] = 0
-// 			continue
-// 		}
-// 		shortestPathLength[node] = maxInt
-// 	}
+		edges := g.adjList[currentNode]
+		for _, edge := range edges {
+			if unvisited.Contains(edge.To) {
+				if (edge.Weight + dist[currentNode]) < dist[edge.To] {
+					dist[edge.To] = edge.Weight + dist[currentNode]
+					prev[edge.To] = currentNode
+				}
+			}
+		}
 
-// 	indexOfSource := indexOf(unvisited, source)
-// 	unvisited = slices.Delete(unvisited, indexOfSource, indexOfSource+1)
+		unvisited.Remove(currentNode)
 
-// 	currentNode := source
-// 	for len(unvisited) != 0 {
-// 		neighbors := g.adjList[currentNode]
+	}
+	return dist, prev
 
-// 		minLengthNeighbor := neighbors[0]
-// 		for neighbor := range neighbors {
-// 			if (shortestPathLength[current] + neighbor.Weight) < shortestpathLength[neighbor] {
+}
 
-// 			}
-// 		}
-// 	}
+func BuildPath(source, target int, prev map[int]int) []int {
+	path := []int{}
 
-// 	fmt.Println(unvisited)
-// 	fmt.Println(shortestPathLength)
+	for cur := target; cur != -1; cur = prev[cur] {
+		path = append(path, cur)
+		if cur == source {
+			break
+		}
+	}
 
-// }
+	// If we never reached the source, there's no path
+	if len(path) == 0 || path[len(path)-1] != source {
+		return nil // unreachable
+	}
+
+	// Reverse the path to get source -> target
+	for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
+		path[i], path[j] = path[j], path[i]
+	}
+
+	return path
+}

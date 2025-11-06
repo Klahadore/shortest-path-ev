@@ -68,41 +68,25 @@ func TestAddEdge_AddsVerticesAndEdge(t *testing.T) {
 }
 
 func TestReturnVertices(t *testing.T) {
-	g := NewGraph()
-	g.AddEdge(1, 2, 2)
-	g.AddEdge(2, 3, 4)
-	g.AddEdge(2, 4, 3)
-	g.AddVertex(5)
+    g := NewGraph()
+    g.AddEdge(1, 2, 2)
+    g.AddEdge(2, 3, 4)
+    g.AddEdge(2, 4, 3)
+    g.AddVertex(5)
 
-	vertices := g.GetVertices()
+    vertices := g.GetVertices()
 
-	// Check that we have the correct number of vertices
-	expectedCount := 5
-	if len(vertices) != expectedCount {
-		t.Errorf("Expected %d vertices, but got %d", expectedCount, len(vertices))
-	}
+    // Check that we have the correct number of vertices
+    expectedCount := 5
+    if vertices.Size() != expectedCount {
+        t.Errorf("Expected %d vertices, but got %d", expectedCount, vertices.Size())
+    }
 
-	// Check that all expected vertices are present
-	expectedVertices := []int{1, 2, 3, 4, 5}
-	for _, expected := range expectedVertices {
-		found := false
-		for _, vertex := range vertices {
-			if vertex == expected {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected vertex %d not found in vertices", expected)
-		}
-	}
-
-	// Check that there are no duplicate vertices
-	vertexSet := make(map[int]bool)
-	for _, vertex := range vertices {
-		if vertexSet[vertex] {
-			t.Errorf("Duplicate vertex %d found", vertex)
-		}
-		vertexSet[vertex] = true
-	}
+    // Check that all expected vertices are present using Set.Contains
+    expectedVertices := []int{1, 2, 3, 4, 5}
+    for _, v := range expectedVertices {
+        if !vertices.Contains(v) {
+            t.Errorf("Expected vertex %d not found in vertices", v)
+        }
+    }
 }
